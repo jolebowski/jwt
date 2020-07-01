@@ -2,7 +2,7 @@
 <html lang="fr">
   <head>
     <meta charset="UTF-8" />
-    <title>Express Movies</title>
+    <title>Connexion</title>
     <link rel="stylesheet" href="../public/style.css" />
     <script src="https://unpkg.com/axios@0.15.3/dist/axios.min.js"></script>
   </head>
@@ -10,7 +10,7 @@
     <div class="central">
       <h1><%= title %></h1>
       <br />
-      <div>
+      <div id="login">
         <form>
           <legend>Veuillez saisir vos identifiants</legend>
           <label for="email">email</label>
@@ -20,17 +20,24 @@
           <button type="submit">connexion</button>
         </form>
       </div>
+      <div id="profile" style="display: none;">
+        <button id="disconnect">deconnexion</button>
+      </div>
     </div>
-
-    <footer>
-      <% include ./partials/footer %>
-    </footer>
     <script>
       var form = document.querySelector("form");
       form.addEventListener("submit", loginUser);
 
+      var loginArea = document.getElementById("login");
+      var profileArea = document.getElementById("profile");
+      var buttonDisconnect = document.getElementById("disconnect");
       function loginUser(event) {
         loginUserWithXHR(event);
+      }
+      buttonDisconnect.addEventListener("click", logout);
+      function logout() {
+        switchProfileAtLogin();
+        localStorage.removeItem("token");
       }
 
       function loginUserWithXHR(event) {
@@ -50,6 +57,9 @@
         xhr.onreadystatechange = function () {
           //Call a function when the state changes.
           if (xhr.readyState == XMLHttpRequest.DONE && xhr.status == 200) {
+            var token = xhr.response;
+            localStorage.setItem("token", token);
+            switchLoginAtProfile();
             form.reset();
           }
         };
@@ -57,6 +67,14 @@
         var password = document.getElementById("password").value;
         var payLoad = "email=" + email + "&" + "password=" + password;
         xhr.send(payLoad);
+      }
+      function switchLoginAtProfile() {
+        loginArea.style.display = "none";
+        profileArea.style.display = "block";
+      }
+      function switchProfileAtLogin() {
+        loginArea.style.display = "block";
+        profileArea.style.display = "none";
       }
     </script>
   </body>
