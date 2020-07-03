@@ -22,6 +22,8 @@
       </div>
       <div id="profile" style="display: none;">
         <button id="disconnect">deconnexion</button>
+        <button id="displayPLayload">Voir le playload</button>
+        <div id="decodedPlayload"></div>
       </div>
     </div>
     <script>
@@ -31,10 +33,14 @@
       var loginArea = document.getElementById("login");
       var profileArea = document.getElementById("profile");
       var buttonDisconnect = document.getElementById("disconnect");
+      var displayPLayload = document.getElementById("displayPLayload");
+
       function loginUser(event) {
         loginUserWithXHR(event);
       }
       buttonDisconnect.addEventListener("click", logout);
+      displayPLayload.addEventListener("click", displayPlayload);
+
       function logout() {
         switchProfileAtLogin();
         localStorage.removeItem("token");
@@ -58,6 +64,7 @@
           //Call a function when the state changes.
           if (xhr.readyState == XMLHttpRequest.DONE && xhr.status == 200) {
             var token = xhr.response;
+            var playload = parseJwt();
             localStorage.setItem("token", token);
             switchLoginAtProfile();
             form.reset();
@@ -67,6 +74,21 @@
         var password = document.getElementById("password").value;
         var payLoad = "email=" + email + "&" + "password=" + password;
         xhr.send(payLoad);
+      }
+      function displayPlayload() {
+        var playload = parseJwt();
+        var decodedPlayload = document.getElementById("decodedPlayload");
+        decodedPlayload.innerHTML =
+          "<pre>" + JSON.stringify(playload.user) + "</pre>";
+      }
+      function parseJwt() {
+        var tokenLocalStorage = localStorage.getItem("token");
+        if (tokenLocalStorage) {
+          var base64Playload = tokenLocalStorage.split(".")[1];
+          return JSON.parse(window.atob(base64Playload));
+        } else {
+          return "not token";
+        }
       }
       function switchLoginAtProfile() {
         loginArea.style.display = "none";

@@ -2,26 +2,32 @@ const express = require("express");
 const path = require("path");
 const logger = require("morgan");
 const jwt = require("jsonwebtoken");
+const expressJwt = require("express-jwt");
 
 const app = express();
 
 app.use(logger("dev"));
+// Body Parse Middleware
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
 
 const PORT = process.env.PORT || 3000;
 
 app.set("views", "./views");
 app.set("view engine", "ejs");
-
-// Body Parse Middleware
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+const secret =
+  "qsdjS12ozehdoIJ123DJOZJLDSCqsdeffdg123ER56SDFZedhWXojqshduzaohduihqsDAqsdq";
+app.use(
+  expressJwt({ secret: secret, algorithms: ["HS256"] }).unless({
+    path: ["/login"],
+  })
+);
 
 app.get("/login", (req, res) => {
   res.render("login", { title: "Connexion" });
 });
 const fakeUser = { email: "fakeuser@gmail.com", password: "toto" };
-const secret =
-  "qsdjS12ozehdoIJ123DJOZJLDSCqsdeffdg123ER56SDFZedhWXojqshduzaohduihqsDAqsdq";
+
 app.post("/login", (req, res) => {
   if (!req.body) {
     return res.status(500);
